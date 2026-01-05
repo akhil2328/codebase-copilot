@@ -258,7 +258,6 @@ export default function App() {
         >
           Send
         </button>
-
       </div>
     </div>
   );
