@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+numpy
+faiss-cpu
+gitpython
+sentence-transformers
+requests
+firebase-admin
+python-multipart
