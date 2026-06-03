@@ -274,7 +274,7 @@ DELETE /clear
 
 ### AI Assistant
 
-![Assistant](screenshots/chat.png)
+![Assistant](screenshots/AI-assistant.png)
 
 ## Future Improvements
 
