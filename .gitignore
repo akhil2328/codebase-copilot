@@ -1,0 +1,51 @@
+# -------------------------
+# Python
+# -------------------------
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# -------------------------
+# Environment Variables
+# -------------------------
+.env
+
+# -------------------------
+# Firebase Secrets
+# -------------------------
+firebase-key.json
+
+# -------------------------
+# FAISS / Generated Data
+# -------------------------
+backend/data/index.faiss
+backend/data/meta.pkl
+backend/data/last_repo.txt
+
+# Indexed repositories
+backend/data/repo/
+
+# -------------------------
+# Frontend
+# -------------------------
+frontend/node_modules/
+frontend/dist/
+
+# -------------------------
+# VS Code
+# -------------------------
+.vscode/
+
+# -------------------------
+# Operating System Files
+# -------------------------
+.DS_Store
+Thumbs.db
+
+# -------------------------
+# Logs
+# -------------------------
+*.log

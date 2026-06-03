@@ -10,7 +10,7 @@ import {
   FaFolderOpen,
 } from "react-icons/fa";
 
-const BACKEND = "http://127.0.0.1:9000";
+const BACKEND = "http://127.0.0.1:8000";
 
 function FileNode({ node, onSelect }) {
   const [open, setOpen] = useState(false);

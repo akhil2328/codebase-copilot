@@ -2,30 +2,84 @@ import os
 
 BASE = os.path.abspath("data/repo")
 
-# extensions we care about
-EXT = (".py", ".js", ".ts", ".java", ".md", ".txt", ".json", ".html", ".css")
+# File types worth indexing
+EXTENSIONS = (
+    ".py",
+    ".js",
+    ".ts",
+    ".tsx",
+    ".jsx",
+    ".java",
+    ".md",
+    ".txt",
+    ".json",
+    ".html",
+    ".css",
+)
+
+# Folders to ignore
+SKIP_DIRS = {
+    ".git",
+    "node_modules",
+    "dist",
+    "build",
+    ".next",
+    "__pycache__",
+    "venv",
+    ".venv",
+    ".idea",
+    ".vscode",
+    "coverage",
+    "target",
+    "out",
+    "bin",
+    "obj",
+}
 
 
 def read_code(path=BASE):
-    data = []
+
+    files_data = []
 
     if not os.path.exists(path):
         print("❌ Repo path missing:", path)
-        return data
+        return files_data
 
-    for root, _, files in os.walk(path):
-        for f in files:
-            if f.lower().endswith(EXT):
-                full = os.path.join(root, f)
-                try:
-                    text = open(full, "r", encoding="utf8",
-                                errors="ignore").read()
-                    data.append({
-                        "path": full.replace("\\", "/"),
-                        "content": text
-                    })
-                except Exception as e:
-                    print("⚠ Failed reading", full, e)
+    for root, dirs, files in os.walk(path):
 
-    print("📄 Files loaded:", len(data))
-    return data
+        # Skip heavy folders
+        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
+
+        for filename in files:
+
+            if not filename.lower().endswith(EXTENSIONS):
+                continue
+
+            full_path = os.path.join(root, filename)
+
+            try:
+
+                with open(
+                    full_path,
+                    "r",
+                    encoding="utf8",
+                    errors="ignore"
+                ) as f:
+
+                    content = f.read()
+
+                # Skip empty files
+                if not content.strip():
+                    continue
+
+                files_data.append({
+                    "path": full_path.replace("\\", "/"),
+                    "content": content
+                })
+
+            except Exception as e:
+                print(f"⚠ Failed reading {full_path}: {e}")
+
+    print(f"📄 Files loaded: {len(files_data)}")
+
+    return files_data

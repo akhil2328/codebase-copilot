@@ -1,42 +1,72 @@
 import requests
 
-# 🔹 SHORT + FAST system prompt (no fluff)
 SYSTEM_PROMPT = """
-You are a code assistant.
-Answer strictly using ONLY the provided code.
-If the answer is not in the code, say you are unsure.
-Keep answers concise and clear.
+You are a senior software engineer.
+
+Rules:
+- Answer only from the provided code context.
+- If information is missing, say "I could not find that in the indexed code."
+- Keep answers concise.
+- Mention file names when relevant.
+- Focus on architecture, functions, APIs, classes, and implementation details.
 """
+
+
+OLLAMA_URL = "http://localhost:11434/api/generate"
+
+MODEL = "qwen2.5:1.5b"
+
+MAX_CONTEXT_PER_CHUNK = 500
 
 
 def ask_llm(question, ranked_chunks):
 
-    # build clean context
+    # -----------------------------
+    # Build compact context
+    # -----------------------------
+
     context = "\n\n".join(
-        f"[FILE: {r['path']}]\n{r['content']}"
-        for r in ranked_chunks
+        f"[FILE: {chunk['path']}]\n{chunk['content'][:MAX_CONTEXT_PER_CHUNK]}"
+        for chunk in ranked_chunks
     )
 
-    # 🔹 optimized final prompt (small = faster first token)
     prompt = f"""
 {SYSTEM_PROMPT}
 
-Context:
+CODE CONTEXT:
 {context}
 
-Question:
+QUESTION:
 {question}
 
-Answer:
+ANSWER:
 """
 
-    r = requests.post(
-        "http://localhost:11434/api/generate",
-        json={
-            "model": "qwen2.5:1.5b",
-            "prompt": prompt,
-            "stream": False   # ⚠️ unchanged on purpose
-        }
-    )
+    try:
 
-    return r.json()["response"]
+        response = requests.post(
+            OLLAMA_URL,
+            json={
+                "model": MODEL,
+                "prompt": prompt,
+                "stream": False,
+                "options": {
+                    "temperature": 0.2,
+                    "num_predict": 250
+                }
+            },
+            timeout=60
+        )
+
+        data = response.json()
+
+        if "response" not in data:
+            return f"LLM Error: {data}"
+
+        return data["response"].strip()
+
+    except requests.exceptions.Timeout:
+        return "The AI model took too long to respond."
+
+    except Exception as e:
+        return f"LLM Error: {str(e)}"
