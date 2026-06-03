@@ -1,6 +1,6 @@
 import re
 
-MAX_CHUNK_SIZE = 500
+MAX_CHUNK_SIZE = 1500
 
 
 def split_large_block(text, size=MAX_CHUNK_SIZE):

@@ -59,8 +59,34 @@ export default function App() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
+  useEffect(() => {
+    checkStatus();
+  }, []);
 
+  const checkStatus = async () => {
+    try{
+      const res = await axios.get(
+        `${BACKEND}/status`
+      );
+      if (res.data.indexed) {
+        setIndexed(true);
+        const files = await axios.get(
+          `${BACKEND}/files`
+        );
+        setFiles(files.data);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    
+  };
   const indexRepo = async () => {
+  if (!repoUrl.trim()) {
+    alert("Enter a GitHub repository URL");
+    return;
+  }
+
+  try {
     setIndexed(false);
 
     await axios.post(`${BACKEND}/index`, null, {
@@ -68,12 +94,37 @@ export default function App() {
     });
 
     const res = await axios.get(`${BACKEND}/files`);
+
     setFiles(res.data);
 
     setIndexed(true);
 
     alert("Repo indexed successfully!");
-  };
+  } catch (err) {
+    console.error(err);
+    alert("Failed to index repository");
+  }
+ };
+  const clearRepo = async () => {
+  try {
+    await axios.delete(`${BACKEND}/clear`);
+
+    setRepoUrl("");
+    setFiles([]);
+    setTabs([]);
+    setActive(null);
+
+    setMessages([]);
+    setQuestion("");
+
+    setIndexed(false);
+
+    alert("Repository cleared successfully!");
+  } catch (err) {
+    console.error(err);
+    alert("Failed to clear repository");
+  }
+};
 
   const openFile = async (path) => {
     const res = await axios.get(`${BACKEND}/file`, { params: { path } });
@@ -99,6 +150,14 @@ export default function App() {
   };
 
   const ask = async () => {
+    if (!question.trim()) {
+      return;
+    }
+    if (!indexed) {
+      alert("Index a repository first");
+      return;
+    }
+    console.log("SEND BUTTON CLICKED");
     const userMsg = { role: "user", text: question };
     setMessages((m) => [...m, userMsg]);
 
@@ -153,8 +212,27 @@ export default function App() {
           style={{ width: "100%", marginBottom: 10 }}
         />
 
-        <button onClick={indexRepo}>Index Repo</button>
-
+        <div 
+        style={{
+          display: "flex",
+          gap: "10px",
+          marginBottom: "10px",
+        }}
+        >
+          <button 
+            onClick={indexRepo}>
+              Index Repo
+          </button>
+          <button
+            onClick={clearRepo}
+            style={{
+              background: "#c0392b",
+              color: "white",
+            }}
+          >
+            Clear Repo
+          </button>
+        </div>
         <div style={{ marginTop: 10 }}>
           <FaSearch /> Search
           <input
@@ -257,7 +335,7 @@ export default function App() {
           placeholder="Ask about the repo…"
         />
 
-        <button onClick={ask} disabled={!question || loading}>
+        <button onClick={ () => ask() }>
           Send
         </button>
       </div>

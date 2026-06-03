@@ -41,6 +41,21 @@ def safe_delete(path):
 
 
 # -----------------------------------
+# NEW: Delete Repository
+# -----------------------------------
+
+def delete_repo():
+
+    if os.path.exists(TARGET):
+        safe_delete(TARGET)
+
+    if os.path.exists(LAST_REPO_FILE):
+        os.remove(LAST_REPO_FILE)
+
+    print("🗑 Repository deleted")
+
+
+# -----------------------------------
 # Cache helpers
 # -----------------------------------
 
@@ -112,7 +127,7 @@ def clone_repo(url, target=TARGET):
     Repo.clone_from(
         url,
         target,
-        depth=1  # faster clone
+        depth=1
     )
 
     save_last_repo(url)

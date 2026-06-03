@@ -65,12 +65,8 @@ def build_index(url):
     print("STEP 2: reading files")
     files = read_code()
 
-    print(f"📄 Files loaded: {len(files)}")
-
     print("STEP 3: chunking files")
     chunks = chunk_code(files)
-
-    print(f"🧩 Chunks created: {len(chunks)}")
 
     print("STEP 4: generating embeddings + storing")
     store_chunks(chunks, embed_text)
@@ -100,12 +96,15 @@ def answer(q):
         rewritten_query,
         embed_text
     )
+    print("SEARCH RESULTS:", len(ranked))
+    if ranked:
+        print("FIRST RESULT:", ranked[0]["path"])
 
     if not ranked:
         return "Sorry — no relevant code found."
 
     # Faster than 5 chunks
-    ranked = ranked[:3]
+    ranked = ranked[:2]
 
     # ----------------------------------------
     # Conversation Memory
